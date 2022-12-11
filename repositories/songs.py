@@ -56,7 +56,7 @@ class SongRepository(BaseRepository):
                                    "ON s.album =  art_alb_full.al_id WHERE s.song_name = %s;",
                                    song_name)
 
-    def get_song_by_song_name_and_album_name(self, song, album) -> List[Tuple]:
+    def get_song_by_song_name_and_album_name(self, song: str, album: str) -> List[Tuple]:
         """
         Returns a single song in an album with the same name as the song name and album name.
         :param song: The name of the song.
@@ -69,7 +69,7 @@ class SongRepository(BaseRepository):
                                    "s.album = (SELECT album_id FROM albums WHERE album_name = %s)"
                                    " AND s.song_name = %s;", song, album)
 
-    def get_songs_in_album(self, album) -> List[Tuple]:
+    def get_songs_in_album(self, album: str) -> List[Tuple]:
         """
         Returns all songs in a specific album.
         :param album: The name of the album.
