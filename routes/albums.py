@@ -1,5 +1,5 @@
 from flask import Blueprint, jsonify
-from repositories.albums import AlbumsRepository
+from repositories import AlbumsRepository
 
 albums_routes = Blueprint('albums', __name__)
 
