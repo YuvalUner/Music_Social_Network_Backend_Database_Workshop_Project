@@ -5,9 +5,7 @@ from repositories.base import BaseRepository
 
 class ArtistsRepository(BaseRepository):
     def add_artist(self, name: str, pwd: str):
-        return self._execute_query("INSERT INTO artists VALUES (NULL, %s, %s, NULL)",
-                                   name,
-                                   hashlib.sha256(pwd.encode()).hexdigest())
+        return self._execute_query("INSERT INTO artists VALUES (NULL, %s, %s, NULL)", name, pwd)
 
     def get_all_artists(self):
         return self._execute_query("SELECT * FROM artists")
