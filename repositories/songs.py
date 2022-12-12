@@ -14,19 +14,19 @@ class SongRepository(BaseRepository):
         song spotify id, artist name, artist id, album id, album name.
         Each song can have more than one entry if the song is performed by more than 1 artist.
         """
-        return self._execute_query("SELECT"
+        return self._execute_query("SELECT "
                                    "s.song_name, s.duration, s.song_key, s.release_date, s.is_major,"
                                    " s.energy, s.song_spotify_id, art_alb_full.ar_name AS artist_name,"
-                                   " art_alb_full.al_id AS album_id, art_alb_full.album_name"
-                                   "FROM songs as s JOIN"
-                                   "(SELECT"
-                                   "alb.album_id AS al_id, alb.album_name, alb.album_spotify_id, a_id, ar_name"
-                                   "FROM albums AS alb JOIN"
-                                   "(SELECT art.artist_id AS a_id, abc.album_id AS al_id, art.artist_name AS ar_name"
-                                   "FROM artist_album_connector AS abc JOIN"
-                                   "artists as art ON art.artist_id = abc.artist_id)"
-                                   "AS art_alb ON art_alb.al_id = alb.album_id)"
-                                   "AS art_alb_full"
+                                   " art_alb_full.al_id AS album_id, art_alb_full.album_name "
+                                   "FROM songs as s JOIN "
+                                   "(SELECT "
+                                   "alb.album_id AS al_id, alb.album_name, alb.album_spotify_id, a_id, ar_name "
+                                   "FROM albums AS alb JOIN "
+                                   "(SELECT art.artist_id AS a_id, abc.album_id AS al_id, art.artist_name AS ar_name "
+                                   "FROM artist_album_connector AS abc JOIN "
+                                   "artists as art ON art.artist_id = abc.artist_id) "
+                                   "AS art_alb ON art_alb.al_id = alb.album_id) "
+                                   "AS art_alb_full "
                                    "ON s.album =  art_alb_full.al_id WHERE s.song_name LIKE CONCAT('%', %s, '%');",
                                    song_name)
 
@@ -40,19 +40,19 @@ class SongRepository(BaseRepository):
         song spotify id, artist name, artist id, album id, album name.
         Each song can have more than one entry if the song is performed by more than 1 artist.
         """
-        return self._execute_query("SELECT"
+        return self._execute_query("SELECT "
                                    "s.song_name, s.duration, s.song_key, s.release_date, s.is_major,"
                                    " s.energy, s.song_spotify_id, art_alb_full.ar_name AS artist_name,"
-                                   " art_alb_full.al_id AS album_id, art_alb_full.album_name"
+                                   " art_alb_full.al_id AS album_id, art_alb_full.album_name "
                                    "FROM songs as s JOIN"
-                                   "(SELECT"
-                                   "alb.album_id AS al_id, alb.album_name, alb.album_spotify_id, a_id, ar_name"
-                                   "FROM albums AS alb JOIN"
-                                   "(SELECT art.artist_id AS a_id, abc.album_id AS al_id, art.artist_name AS ar_name"
-                                   "FROM artist_album_connector AS abc JOIN"
-                                   "artists as art ON art.artist_id = abc.artist_id)"
-                                   "AS art_alb ON art_alb.al_id = alb.album_id)"
-                                   "AS art_alb_full"
+                                   "(SELECT "
+                                   "alb.album_id AS al_id, alb.album_name, alb.album_spotify_id, a_id, ar_name "
+                                   "FROM albums AS alb JOIN "
+                                   "(SELECT art.artist_id AS a_id, abc.album_id AS al_id, art.artist_name AS ar_name "
+                                   "FROM artist_album_connector AS abc JOIN "
+                                   "artists as art ON art.artist_id = abc.artist_id) "
+                                   "AS art_alb ON art_alb.al_id = alb.album_id) "
+                                   "AS art_alb_full "
                                    "ON s.album =  art_alb_full.al_id WHERE s.song_name = %s;",
                                    song_name)
 
@@ -65,8 +65,8 @@ class SongRepository(BaseRepository):
         song id, song name, album id, song duration, song key, song release date, song in major or not, song energy,
         song spotify id.
         """
-        return self._execute_query("SELECT * FROM songs AS s WHERE "
-                                   "s.album = (SELECT album_id FROM albums WHERE album_name = %s)"
+        return self._execute_query("SELECT * FROM songs AS s WHERE"
+                                   " s.album = (SELECT album_id FROM albums WHERE album_name = %s)"
                                    " AND s.song_name = %s;", song, album)
 
     def get_songs_in_album(self, album: str) -> List[Tuple]:
@@ -77,7 +77,17 @@ class SongRepository(BaseRepository):
         song id, song name, album id, song duration, song key, song release date, song in major or not, song energy,
         song spotify id.
         """
-        return self._execute_query("SELECT * FROM songs AS s WHERE"
-                                   "s.album = (SELECT album_id FROM albums WHERE album_name = album);", album)
+        return self._execute_query("SELECT * FROM songs AS s WHERE "
+                                   "s.album = (SELECT album_id FROM albums WHERE album_name = %s);", album)
 
 
+if __name__ == '__main__':
+    song_repository = SongRepository.get_instance()
+    song = song_repository.get_song_by_song_name_and_album_name("Name", "Name")
+    print(song)
+    songs = song_repository.get_songs_in_album("Name")
+    print(songs)
+    approx_search_results = song_repository.approx_song_search_with_artist_and_album("Name")
+    print(approx_search_results)
+    exact_search_results = song_repository.exact_song_search_with_artist_and_album("Name")
+    print(exact_search_results)
