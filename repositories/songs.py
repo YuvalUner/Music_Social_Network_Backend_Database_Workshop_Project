@@ -80,14 +80,80 @@ class SongRepository(BaseRepository):
         return self._execute_query("SELECT * FROM songs AS s WHERE "
                                    "s.album = (SELECT album_id FROM albums WHERE album_name = %s);", album)
 
+    def get_song_rating(self, song: str, album: str) -> List[Tuple]:
+        """
+        Returns the rating of a song.
+        :param song: The name of the song.
+        :param album: The name of the album the song belongs to.
+        :return: A single rating value for the song, averaged from all the ratings given to it.
+        """
+        return self._execute_query("SELECT AVG(rating) FROM comment_on_song "
+                                   "WHERE song_id = (SELECT song_id FROM songs "
+                                   "WHERE song_name = %s "
+                                   "AND album = (SELECT album_id FROM albums WHERE album_name = %s));", song, album)
+
+    def get_top_rated_songs(self, limit: int) -> List[Tuple]:
+        """
+        Returns the top rated songs.
+        :param limit: The number of top rated songs to return.
+        :return: A list of the top rated songs with the following info in this order:
+        song name, album id, song duration, song key, song release date, song in major or not, song energy,
+        song spotify id, rating.
+        """
+        return self._execute_query("SELECT songs.song_id, song_name, album, duration, song_key, release_Date, "
+                                   "is_major, energy, song_spotify_id, avg_rating "
+                                   "FROM songs JOIN "
+                                   "(SELECT AVG(rating) as avg_rating, "
+                                   "song_id FROM comment_on_song GROUP BY song_id ORDER BY avg_rating DESC LIMIT %s) "
+                                   "AS rtngs "
+                                   "ON songs.song_id = rtngs.song_id "
+                                   "GROUP BY songs.song_id;", limit)
+
+    def get_top_rated_songs_per_year(self, rel_date: str, lim: int) -> List[Tuple]:
+        """
+        Returns the top rated songs per year.
+        :param rel_date: A date string containing the year the songs were released.
+        :param lim: How many songs to get.
+        :return: A list of the top rated songs per year with the following info in this order:
+        song name, album id, song duration, song key, song release date, song in major or not, song energy,
+        song spotify id, rating.
+        """
+        return self._execute_query("SELECT year_songs.song_id, song_name, album, duration, song_key, release_Date, "
+                                   "is_major, energy, song_spotify_id, avg_rating "
+                                   "FROM (SELECT * FROM songs WHERE YEAR(release_date) = "
+                                   "YEAR(STR_TO_DATE(%s, '%Y-%m-%d'))) AS year_songs "
+                                   "JOIN (SELECT AVG(rating) as avg_rating, song_id "
+                                   "FROM comment_on_song GROUP BY song_id) "
+                                   "AS rtngs "
+                                   "ON year_songs.song_id = rtngs.song_id "
+                                   "GROUP BY year_songs.song_id "
+                                   "ORDER BY avg_rating DESC LIMIT %s;", rel_date, lim)
+
+    def add_song(self, song_name: str, album_name: str, artist_name: str, spotify_id: str, dur: int,
+                 scale: str, rel_date: str, is_major: bool, energy: float) -> None:
+        """
+        Adds a song to the database.
+        :param song_name: the song's name.
+        :param album_name: the name of the album the song belongs to.
+        :param artist_name: the name of an artists related to the song.
+        :param spotify_id: the spotify id of the song.
+        :param dur: the song's duration in miliseconds.
+        :param scale: the song's key.
+        :param rel_date: the song's release date.
+        :param is_major: whether the song is in major or not.
+        :param energy: the song's energy.
+        :return: True if the song was added successfully, False otherwise.
+        """
+        self._execute_query("CALL add_song(%s, %s, %s, %s, %s, %s, %s, %s, %s);", song_name, album_name,
+                                artist_name, spotify_id, dur, scale, rel_date, is_major, energy)
+
+
 
 if __name__ == '__main__':
     song_repository = SongRepository.get_instance()
-    song = song_repository.get_song_by_song_name_and_album_name("Name", "Name")
-    print(song)
-    songs = song_repository.get_songs_in_album("Name")
-    print(songs)
-    approx_search_results = song_repository.approx_song_search_with_artist_and_album("Name")
-    print(approx_search_results)
-    exact_search_results = song_repository.exact_song_search_with_artist_and_album("Name")
-    print(exact_search_results)
+    rating = song_repository.get_song_rating("Name", "Name")
+    print(rating)
+    top_songs = song_repository.get_top_rated_songs(10)
+    print(top_songs)
+    top_songs_per_year = song_repository.get_top_rated_songs_per_year("2019-01-01", 10)
+    print(top_songs_per_year)
