@@ -11,7 +11,7 @@ class SongRepository(BaseRepository):
         :param song_name: The name of the song to search for.
         :return: A list of songs that are similar to the song_name parameter, with the following info in this order:
         song name, song duration, song key, song release date, song in major or not, song energy,
-        song spotify id, artist name, artist id, album id, album name.
+        song spotify id, artist name, album id, album name.
         Each song can have more than one entry if the song is performed by more than 1 artist.
         """
         return self._execute_query("SELECT "
@@ -37,7 +37,7 @@ class SongRepository(BaseRepository):
         :param song_name: The name of the song to search for.
         :return: A list of songs with the same name as the song_name parameter, with the following info in this order:
         song name, song duration, song key, song release date, song in major or not, song energy,
-        song spotify id, artist name, artist id, album id, album name.
+        song spotify id, artist name, album id, album name.
         Each song can have more than one entry if the song is performed by more than 1 artist.
         """
         return self._execute_query("SELECT "
@@ -67,7 +67,7 @@ class SongRepository(BaseRepository):
         """
         return self._execute_query("SELECT * FROM songs AS s WHERE"
                                    " s.album = (SELECT album_id FROM albums WHERE album_name = %s)"
-                                   " AND s.song_name = %s;", song, album)
+                                   " AND s.song_name = %s;", album, song)
 
     def get_songs_in_album(self, album: str) -> List[Tuple]:
         """
@@ -97,7 +97,7 @@ class SongRepository(BaseRepository):
         Returns the top rated songs.
         :param limit: The number of top rated songs to return.
         :return: A list of the top rated songs with the following info in this order:
-        song name, album id, song duration, song key, song release date, song in major or not, song energy,
+        song id, song name, album id, song duration, song key, song release date, song in major or not, song energy,
         song spotify id, rating.
         """
         return self._execute_query("SELECT songs.song_id, song_name, album, duration, song_key, release_Date, "
@@ -147,13 +147,63 @@ class SongRepository(BaseRepository):
         self._execute_query("CALL add_song(%s, %s, %s, %s, %s, %s, %s, %s, %s);", song_name, album_name,
                                 artist_name, spotify_id, dur, scale, rel_date, is_major, energy)
 
+    def get_info_on_liked_songs(self, username: str) -> List[Tuple]:
+        """
+        Gets all the info on the user's possible liked songs.
+        :param username: The username of the user.
+        :return: A list of tuples with the following info in this order:
+        genre name, artist name, artist_spotify_id, album name, album spotify id, song name, song duration,
+        song key, song release date, song in major or not, song energy, song spotify id, song rating according to user.
+        """
+        return self._execute_query("SELECT genre_name, artist_name, artist_spotify_id, album_name, album_spotify_id, "
+                                   "song_name, duration, song_key, release_date, is_major, energy, "
+                                   "song_spotify_id, rating "
+                                   "FROM genres JOIN( "
+                                   "SELECT agc.genre_id, artist_name, artist_spotify_id, album_name, album_spotify_id, "
+                                   "song_name, duration, song_key, release_date, is_major, energy, song_spotify_id, "
+                                   "rating FROM artist_genre_connector as agc JOIN( "
+                                   "SELECT artists.artist_id, artist_name, artist_spotify_id, album_id, album_name, "
+                                   "album_spotify_id,  song_id, song_name, duration, song_key, release_date, is_major, "
+                                   "energy, song_spotify_id, rating "
+                                   "FROM artists JOIN( "
+                                   "SELECT abc.artist_id, abc.album_id, album_name, album_spotify_id, song_id, "
+                                   "song_name, duration, song_key, release_date, is_major, energy, song_spotify_id, "
+                                   "rating FROM artist_album_connector AS abc JOIN "
+                                   "(SELECT album_id, album_name, album_spotify_id, song_id, song_name, duration, "
+                                   "song_key, release_date, is_major, energy, song_spotify_id, rating "
+                                   "FROM albums AS a JOIN "
+                                   "(SELECT s.song_id, song_name, album, duration, song_key, release_Date, is_major, "
+                                   "energy, song_spotify_id, likely_songs.rating "
+                                   "FROM songs AS s JOIN "
+                                   "((SELECT song_id, rating FROM comment_on_song WHERE commenter_id = "
+                                   "(SELECT artists.artist_id FROM artists WHERE artist_name = %s) "
+                                   "AND rating > 3) UNION "
+                                   "(SELECT song_id, 5 AS rating FROM favorite_songs WHERE artist_id "
+                                   "= (SELECT artists.artist_id FROM artists WHERE artist_name = %s))) "
+                                   "AS likely_songs ON s.song_id = likely_songs.song_id) AS likely_songs_info "
+                                   "ON likely_songs_info.album = a.album_id) AS likely_albums ON "
+                                   "abc.album_id = likely_albums.album_id) "
+                                   "AS likely_artists ON likely_artists.artist_id = artists.artist_id) "
+                                   "AS artist_info ON artist_info.artist_id = agc.artist_id) "
+                                   "AS genres_info ON genres.genre_id = genres_info.genre_id;", username, username)
+
 
 
 if __name__ == '__main__':
     song_repository = SongRepository.get_instance()
-    rating = song_repository.get_song_rating("Name", "Name")
-    print(rating)
-    top_songs = song_repository.get_top_rated_songs(10)
-    print(top_songs)
-    top_songs_per_year = song_repository.get_top_rated_songs_per_year("2019-01-01", 10)
-    print(top_songs_per_year)
+    song = song_repository.get_info_on_liked_songs("Glaiza De Castro")[0]
+    print(f"Index: 0, Genre: {song[0]})")
+    print(f"Index: 1, Artist: {song[1]})")
+    print(f"Index: 2, Artist Spotify ID: {song[2]})")
+    print(f"Index: 3, Album: {song[3]})")
+    print(f"Index: 4, Album Spotify ID: {song[4]})")
+    print(f"Index: 5, Song: {song[5]})")
+    print(f"Index: 6, Duration: {song[6]})")
+    print(f"Index: 7, Key: {song[7]})")
+    print(f"Index: 8, Release Date: {song[8]})")
+    print(f"Index: 9, Is Major: {song[9]})")
+    print(f"Index: 10, Energy: {song[10]})")
+    print(f"Index: 11, Song Spotify ID: {song[11]})")
+    print(f"Index: 12, Rating: {song[12]})")
+
+
