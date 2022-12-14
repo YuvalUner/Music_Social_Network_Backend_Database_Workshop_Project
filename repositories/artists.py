@@ -29,15 +29,15 @@ class ArtistsRepository(BaseRepository):
 
     def get_highest_rated_artists(self, n: int) -> List[Tuple[str, int]]:
         top_n_artists = self._execute_query("""
-                                        Select res.artist_name, avg(res.rating) as top_rated from 
-                                            (Select art.artist_name, comment_on_song.rating                                                                  
-                                            From comment_on_song                                                      
-                                            LEFT Join songs as s On s.song_id = comment_on_song.song_id              
-                                            LEFT Join albums as a On a.album_id = s.album                           
-                                            LEFT Join artist_album_connector as aa On a.album_id = aa.album_id       
-                                            LEFT Join artists as art On aa.artist_id = art.artist_id) as res
-                                            group by res.artist_name order by top_rated DESC LIMIT %s
-                                        """, n)
+                                    SELECT artist_name, avg_art FROM artists JOIN
+                                    (SELECT artist_id, AVG(avg_alb) AS avg_art FROM artist_album_connector AS abc JOIN(
+                                    SELECT album, AVG(avg_rate) as avg_alb FROM songs JOIN
+                                    (SELECT AVG(rating) as avg_rate, song_id
+                                     FROM comment_on_song GROUP BY song_id) AS avg_ratings
+                                     ON avg_ratings.song_id = songs.song_id GROUP BY album) AS avg_album_ratings
+                                     ON avg_album_ratings.album = abc.album_id GROUP BY artist_id) AS avg_artist_rating
+                                     ON artists.artist_id = avg_artist_rating.artist_id ORDER BY avg_art DESC LIMIT %s;
+                                    """, n)
         return top_n_artists
 
 
