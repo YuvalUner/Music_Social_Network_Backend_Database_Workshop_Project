@@ -1,0 +1,2 @@
+from repositories.albums import AlbumsRepository
+from repositories.artists import ArtistsRepository
