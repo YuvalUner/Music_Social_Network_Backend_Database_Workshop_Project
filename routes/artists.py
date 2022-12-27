@@ -14,8 +14,12 @@ def check_artist_in_db():
 
 @artists_routes.route('/add', methods=["POST"])
 def add_new_artist():
-    ArtistsRepository.get_instance().add_artist(request.json["name"], request.json["password"])
-    return jsonify({"res": "OK"}), 201
+    try:
+        x = request.json
+        ArtistsRepository.get_instance().add_artist(request.json["name"], request.json["password"])
+        return jsonify({"res": "OK"}), 201
+    except Exception as e:
+        return jsonify({"res": "Username already exists"}), 400
 
 
 @artists_routes.route('/<int:artist_id>/albums', methods=["GET"])
