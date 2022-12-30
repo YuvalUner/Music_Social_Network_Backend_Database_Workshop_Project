@@ -27,6 +27,22 @@ class ArtistsRepository(BaseRepository):
         """, artist_id)
         return [album[0] for album in albums]
 
+    def get_artist_albums_by_name(self, artist_name: str) -> List[Tuple]:
+        return self._execute_query("""
+                                SELECT * FROM albums WHERE album_id IN(
+                                    SELECT album_id FROM artist_album_connector WHERE artist_id = 
+                                        (SELECT artist_id FROM artists WHERE artist_name = %s))
+                                    """, artist_name)
+
+    def get_artist_avg_rating(self, artist_name: str) -> float:
+        avg_rating = self._execute_query("""SELECT AVG(rating) FROM comment_on_song WHERE song_id IN
+        (SELECT song_id FROM songs WHERE album IN
+            (SELECT album_id FROM albums WHERE album_id IN(
+                SELECT album_id FROM artist_album_connector WHERE artist_id = 
+                    (SELECT artist_id FROM artists WHERE artist_name = %s))))""", artist_name)
+        return avg_rating[0][0]
+
+
     def get_highest_rated_artists(self, n: int) -> List[Tuple[str, int]]:
         top_n_artists = self._execute_query("""
                                     SELECT artist_name, avg_art FROM artists JOIN
