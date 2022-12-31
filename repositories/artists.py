@@ -42,7 +42,6 @@ class ArtistsRepository(BaseRepository):
                     (SELECT artist_id FROM artists WHERE artist_name = %s))))""", artist_name)
         return avg_rating[0][0]
 
-
     def get_highest_rated_artists(self, n: int) -> List[Tuple[str, int]]:
         top_n_artists = self._execute_query("""
                                     SELECT artist_name, avg_art FROM artists JOIN
@@ -55,6 +54,13 @@ class ArtistsRepository(BaseRepository):
                                      ON artists.artist_id = avg_artist_rating.artist_id ORDER BY avg_art DESC LIMIT %s;
                                     """, n)
         return top_n_artists
+
+    def link_artist_to_genre(self, artist_name: str, genre_name: str):
+        return self._execute_query("""
+                                    INSERT INTO artist_genre_connector VALUES
+                                    ((SELECT artist_id FROM artists WHERE artist_name = %s),
+                                    (SELECT genre_id FROM genres WHERE genre_name = %s))
+                                    """, artist_name, genre_name)
 
 
 if __name__ == '__main__':

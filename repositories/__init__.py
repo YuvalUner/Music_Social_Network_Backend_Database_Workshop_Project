@@ -2,3 +2,4 @@ from repositories.albums import AlbumsRepository
 from repositories.artists import ArtistsRepository
 from repositories.songs import SongRepository
 from repositories.favorite_songs import FavoriteSongsRepository
+from repositories.genres import GenresRepository

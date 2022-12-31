@@ -1,4 +1,5 @@
 import math
+import random
 
 from flask import Blueprint, jsonify, request
 
@@ -139,6 +140,29 @@ class SongWithArtistAndAlbum(Song):
         return [song.to_dict() for song in songs]
 
 
+class SongWithFullInfo(SongWithArtistAndAlbum):
+
+    def __init__(self, song_name, duration, song_key, release_date, is_major, energy, song_spotify_id, artist_name,
+                 album_name, rating, album_id=0):
+        super().__init__(song_name, duration, song_key, release_date, is_major, energy, song_spotify_id, artist_name,
+                         album_id, album_name)
+        self.rating = rating
+
+    def to_dict(self):
+        return {
+            'song_name': self.song_name,
+            'duration': self.duration,
+            'song_key': self.song_key,
+            'release_date': self.release_date,
+            'is_major': self.is_major,
+            'energy': self.energy,
+            'song_spotify_id': self.song_spotify_id,
+            'artists': self.artists,
+            'album_name': self.album_name,
+            'rating': self.rating
+        }
+
+
 @songs_routes.route('/approx/<song_name>', methods=['GET'])
 def approx_song_search_with_artist_and_album(song_name: str):
     """
@@ -189,10 +213,10 @@ def exact_song_search_with_artist_and_album(song_name: str):
         return jsonify({'error': "Illegal query"}), 500
 
 
-@songs_routes.route('/add/', methods=['POST'])
+@songs_routes.route('/add', methods=['POST'])
 def add_song():
     """
-    Adds a song to the database
+    Adds a song to the database.
     :return: 201 on success, 400 on failure
     """
     try:
@@ -204,14 +228,15 @@ def add_song():
         is_major = int(request.json['is_major'])
         energy = float(request.json['energy'])
         song_spotify_id = request.json['song_spotify_id']
-        album = request.json['album']
-        artist = request.json['artist']
-        SongRepository.get_instance().add_song(song_name, album, artist, song_spotify_id, duration, song_key,
+        album_name = request.json['album_name']
+        artist_name = request.json['artist_name']
+        SongRepository.get_instance().add_song(song_name, album_name, artist_name, song_spotify_id, duration, song_key,
                                                release_date, is_major, energy)
         return jsonify({'message': 'Song added successfully'}), 201
     except TypeError:
         return jsonify({'error': "Illegal query"}), 400
     except Exception as e:
+        print(e)
         return jsonify({'error': "Song already exists in this album or the artist or album do not exist"}), 400
 
 
@@ -290,9 +315,22 @@ def get_top_songs(number_of_songs: int):
                                      " We deeply apologize for the inconvenience."}), 500
         song_list = []
         for song in songs:
-            song_item = SongWithRating(song[1], song[2], song[3], song[4], song[5], song[6], song[7], song[8],
-                                       float(song[9]))
-            song_list.append(song_item)
+            song_item = SongWithFullInfo(
+                artist_name=song[0],
+                album_name=song[1],
+                song_name=song[2],
+                duration=song[3],
+                song_key=song[4],
+                release_date=song[5],
+                is_major=song[6],
+                energy=song[7],
+                song_spotify_id=song[8],
+                rating=song[9]
+            )
+            if song_item not in song_list:
+                song_list.append(song_item)
+            else:
+                song_list[song_list.index(song_item)].add_artist(song[0])
         return jsonify([song.to_dict() for song in song_list]), 200
     except TypeError:
         return jsonify({'error': "Illegal argument - must be an integer"}), 404
@@ -318,9 +356,22 @@ def get_top_songs_per_year(number_of_songs: int, year: str):
         song_list = []
         # Convert the songs to song objects
         for song in songs:
-            song_item = SongWithRating(song[1], song[2], song[3], song[4], song[5], song[6], song[7], song[8],
-                                       float(song[9]))
-            song_list.append(song_item)
+            song_item = SongWithFullInfo(
+                artist_name=song[0],
+                album_name=song[1],
+                song_name=song[2],
+                duration=song[3],
+                song_key=song[4],
+                release_date=song[5],
+                is_major=song[6],
+                energy=song[7],
+                song_spotify_id=song[8],
+                rating=song[9]
+            )
+            if song_item not in song_list:
+                song_list.append(song_item)
+            else:
+                song_list[song_list.index(song_item)].add_artist(song[0])
         return jsonify([song.to_dict() for song in song_list]), 200
     except TypeError:
         return jsonify({'error': "Illegal argument - must be an integer"}), 404
@@ -329,7 +380,7 @@ def get_top_songs_per_year(number_of_songs: int, year: str):
 
 
 @songs_routes.route('/get_reccomendations/<username>/<limit>', methods=['GET'])
-def get_reccomendations(limit: int, username: str):
+def get_recommendations(limit: int, username: str):
     """
     Returns a list of reccomendations for the user
     :param limit: the number of songs to get
@@ -360,5 +411,49 @@ def get_reccomendations(limit: int, username: str):
         return jsonify(songs_by_genres), 200
     except TypeError:
         return jsonify({'error': "Illegal argument - must be an integer"}), 404
+    except Exception as e:
+        return jsonify({'error': "Illegal query"}), 500
+
+
+@songs_routes.route('/get_max_min_years', methods=['GET'])
+def get_max_min_years():
+    """
+    Returns the max and min years of the songs in the database
+    :return: JSON of the max and min years
+    """
+    try:
+        years = SongRepository.get_instance().get_max_and_min_song_years()
+        return jsonify({'max_year': years[0], 'min_year': years[1]}), 200
+    except Exception as e:
+        return jsonify({'error': "Illegal query"}), 500
+
+
+@songs_routes.route('/random/<int:limit>', methods=['GET'])
+def get_random(limit: int):
+    """
+    Returns a list of random songs
+    :return:
+    """
+    try:
+        songs = SongRepository.get_instance().get_random(limit)
+        song_list = []
+        for song in songs:
+            song_item = SongWithArtistAndAlbum(
+                artist_name=song[0],
+                album_name=song[1],
+                song_name=song[2],
+                duration=song[3],
+                song_key=song[4],
+                release_date=song[5],
+                is_major=song[6],
+                energy=song[7],
+                song_spotify_id=song[8],
+                album_id=0
+            )
+            if song_item not in song_list:
+                song_list.append(song_item)
+            else:
+                song_list[song_list.index(song_item)].add_artist(song[0])
+        return jsonify([song.to_dict() for song in song_list]), 200
     except Exception as e:
         return jsonify({'error': "Illegal query"}), 500
