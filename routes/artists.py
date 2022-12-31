@@ -28,7 +28,43 @@ def get_artist_albums(artist_id: int):
     return jsonify({"albums": albums}), 200
 
 
+@artists_routes.route('/albums/<artist_name>', methods=["GET"])
+def get_artist_albums_by_name(artist_name: str):
+    albums = ArtistsRepository.get_instance().get_artist_albums_by_name(artist_name)
+    return jsonify([{
+        "album_id": album[0],
+        "album_name": album[1],
+        "spotify_id": album[2],
+    } for album in albums]), 200
+
+
+@artists_routes.route('/rating/<artist_name>', methods=["GET"])
+def get_artist_rating(artist_name: str):
+    rating = ArtistsRepository.get_instance().get_artist_avg_rating(artist_name)
+    return jsonify({"rating": rating}), 200
+
+
 @artists_routes.route('/top_rated/<int:n>', methods=["GET"])
 def get_top_rated_artists(n: int):
     n_top_rated = ArtistsRepository.get_instance().get_highest_rated_artists(n)
     return jsonify({"top_rated_artists": n_top_rated}), 200
+
+
+@artists_routes.route('/spotify_id/<artist_name>', methods=["GET"])
+def get_artist_spotify_id(artist_name: str):
+    try:
+        spotify_id = ArtistsRepository.get_instance().get_artist_by_name(artist_name)[0][3]
+        return jsonify({"spotify_id": spotify_id}), 200
+    except Exception as e:
+        return jsonify({"Error": "Not found"}), 404
+
+
+@artists_routes.route('link_genre', methods=["POST"])
+def link_artist_to_genre():
+    try:
+        artist_name = request.json["artist_name"]
+        genre_name = request.json["genre_name"]
+        ArtistsRepository.get_instance().link_artist_to_genre(artist_name, genre_name)
+        return jsonify({"res": "OK"}), 201
+    except Exception as e:
+        return jsonify({"res": "Error"}), 400

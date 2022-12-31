@@ -7,4 +7,5 @@ if __name__ == '__main__':
     app.register_blueprint(routes.artists_routes, url_prefix='/artists')
     app.register_blueprint(routes.favorite_songs_routes, url_prefix='/favorite-songs')
     app.register_blueprint(routes.comment_routes, url_prefix='/comments')
+    app.register_blueprint(routes.genres_routes, url_prefix='/genres')
     app.run(port=8080, debug=True)

@@ -20,11 +20,11 @@ def get_favorite_songs(artist_name: str):
     try:
         songs = FavoriteSongsRepository.get_instance().get_favorite_songs(artist_name)
         return jsonify([{
-            'artist': song[0],
+            'artists': [song[0]],
             'artist_spotify_id': song[1],
-            'album': song[2],
+            'album_name': song[2],
             'album_spotify_id': song[3],
-            'song': song[4],
+            'song_name': song[4],
             'duration': song[5],
             'key': song[6],
             'release_date': song[7],
