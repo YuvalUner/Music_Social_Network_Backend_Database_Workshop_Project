@@ -27,6 +27,21 @@ class ArtistsRepository(BaseRepository):
         """, artist_id)
         return [album[0] for album in albums]
 
+    def get_artist_albums_by_name(self, artist_name: str) -> List[Tuple]:
+        return self._execute_query("""
+                                SELECT * FROM albums WHERE album_id IN(
+                                    SELECT album_id FROM artist_album_connector WHERE artist_id = 
+                                        (SELECT artist_id FROM artists WHERE artist_name = %s))
+                                    """, artist_name)
+
+    def get_artist_avg_rating(self, artist_name: str) -> float:
+        avg_rating = self._execute_query("""SELECT AVG(rating) FROM comment_on_song WHERE song_id IN
+        (SELECT song_id FROM songs WHERE album IN
+            (SELECT album_id FROM albums WHERE album_id IN(
+                SELECT album_id FROM artist_album_connector WHERE artist_id = 
+                    (SELECT artist_id FROM artists WHERE artist_name = %s))))""", artist_name)
+        return avg_rating[0][0]
+
     def get_highest_rated_artists(self, n: int) -> List[Tuple[str, int]]:
         top_n_artists = self._execute_query("""
                                     SELECT artist_name, avg_art FROM artists JOIN
@@ -39,6 +54,13 @@ class ArtistsRepository(BaseRepository):
                                      ON artists.artist_id = avg_artist_rating.artist_id ORDER BY avg_art DESC LIMIT %s;
                                     """, n)
         return top_n_artists
+
+    def link_artist_to_genre(self, artist_name: str, genre_name: str):
+        return self._execute_query("""
+                                    INSERT INTO artist_genre_connector VALUES
+                                    ((SELECT artist_id FROM artists WHERE artist_name = %s),
+                                    (SELECT genre_id FROM genres WHERE genre_name = %s))
+                                    """, artist_name, genre_name)
 
 
 if __name__ == '__main__':
