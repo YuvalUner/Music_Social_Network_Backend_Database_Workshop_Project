@@ -1,5 +1,6 @@
 import math
 import random
+from typing import List
 
 from flask import Blueprint, jsonify, request
 
@@ -130,7 +131,7 @@ class SongWithArtistAndAlbum(Song):
         return songs
 
     @staticmethod
-    def from_list_as_dicts(song_list: list) -> list[dict]:
+    def from_list_as_dicts(song_list: list) -> List[dict]:
         """
         Like from_list, but converts the list of SongWithArtistAndAlbum objects to a list of dictionaries.
         :param song_list: see from_list
@@ -412,7 +413,8 @@ def get_recommendations(limit: int, username: str):
     except TypeError:
         return jsonify({'error': "Illegal argument - must be an integer"}), 404
     except Exception as e:
-        return jsonify({'error': "Illegal query"}), 500
+        print(e)
+        return jsonify({'error': "Illegal query", "text": str(e)}), 500
 
 
 @songs_routes.route('/get_max_min_years', methods=['GET'])
