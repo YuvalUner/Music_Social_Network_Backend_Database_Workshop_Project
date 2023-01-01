@@ -5,6 +5,10 @@ from repositories.base import BaseRepository
 
 class AlbumsRepository(BaseRepository):
     def get_all_albums(self):
+        """
+        A slightly stupid query, returning all albums.
+        For test measures.
+        """
         return self._execute_query("SELECT * FROM albums")
 
     def get_album_by_name(self, album_name: str):
@@ -27,11 +31,21 @@ class AlbumsRepository(BaseRepository):
         return self._execute_query(query)
 
     def add_album(self, album_name: str, album_spotify_id: str):
-        return self._execute_query("INSERT INTO albums VALUES (NULL, %s, %s)", album_name, album_spotify_id)
+        """
+        Create an unrelated album in the Album table.
+        :return: Create an ALBUM record in Album table.
+        """
+        return self._execute_query("INSERT INTO albums VALUES (NULL, %s, %s);", album_name, album_spotify_id)
 
 
     def add_artist_connection(self, album_id: int, artist_id: int):
-        return self._execute_query("INSERT INTO artist_album_connector VALUES (%d, %d)", album_id, artist_id)
+        """
+        Relate an artist to an album.
+        :return: Create a CONNECTOR record in Album - Artist connector table.
+        """
+        query = "INSERT INTO artist_album_connector VALUES ({rid}, {lid});".format(rid=artist_id, lid=album_id)
+        # print(query)
+        return self._execute_query(query)
 
     def get_all_albums_ratings(self):
         """

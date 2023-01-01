@@ -11,6 +11,7 @@ albums_routes = Blueprint('albums', __name__)
 @albums_routes.route('/add/', methods=["POST"])
 def add_album():
     """
+    Create an unrelated album in the Album table.
     input: JSON: {'album_name' = NAME, 'album_spotify_id' = ID}
     """
     try:
@@ -28,6 +29,10 @@ def add_album():
 
 @albums_routes.route('/add_artist_connector/', methods=["POST"])
 def add_artist_album_connector():
+    """
+    Relate an artist to an album.
+    :return: Create a CONNECTOR record in Album - Artist connector table.
+    """
     try:
         artist_id = request.json['artist_id']
         album_id = request.json['album_id']
@@ -99,10 +104,15 @@ def get_x_highest_ranked_albums():
                      "album_rating": rec[2]} for rec in res])
 
 
-#TODO: Figure out how this stuff works, return types etc...
-# Testing for: /The Big Boss/10
+
 @albums_routes.route('/get_reccomendations/<username>/<limit>', methods=["GET"])
 def get_album_recommendations(limit: int, username: string):
+    """
+    Receive a list of recommended albums.
+    :param username: Client's username, will receive recommendations according to his comments.
+    :param limit: Number of records in the response.
+    :return: A <limit> long list of recommended songs.
+    """
     try:
         limit = int(limit)
         # Get info about the user's preferences
