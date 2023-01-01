@@ -29,6 +29,10 @@ class AlbumsRepository(BaseRepository):
     def add_album(self, album_name: str, album_spotify_id: str):
         return self._execute_query("INSERT INTO albums VALUES (NULL, %s, %s)", album_name, album_spotify_id)
 
+
+    def add_artist_connection(self, album_id: int, artist_id: int):
+        return self._execute_query("INSERT INTO artist_album_connector VALUES (%d, %d)", album_id, artist_id)
+
     def get_all_albums_ratings(self):
         """
         Get all album and their rating (as avg of all ratings they got).
