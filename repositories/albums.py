@@ -38,14 +38,17 @@ class AlbumsRepository(BaseRepository):
         return self._execute_query("INSERT INTO albums VALUES (NULL, %s, %s);", album_name, album_spotify_id)
 
 
-    def add_artist_connection(self, album_id: int, artist_id: int):
+    def add_artist_connection(self, album_name: str, artist_name: str):
         """
         Relate an artist to an album.
         :return: Create a CONNECTOR record in Album - Artist connector table.
         """
-        query = "INSERT INTO artist_album_connector VALUES ({rid}, {lid});".format(rid=artist_id, lid=album_id)
-        # print(query)
-        return self._execute_query(query)
+        return self._execute_query("""
+            INSERT INTO artist_album_connector VALUES (
+                (SELECT artist_id FROM artists WHERE artist_name=%s),
+                (SELECT album_id FROM albums WHERE album_name=%s)
+            );
+        """, artist_name, album_name)
 
     def get_all_albums_ratings(self):
         """

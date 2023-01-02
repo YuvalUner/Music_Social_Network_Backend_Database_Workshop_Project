@@ -8,7 +8,7 @@ import math
 albums_routes = Blueprint('albums', __name__)
 
 
-@albums_routes.route('/add/', methods=["POST"])
+@albums_routes.route('/add', methods=["POST"])
 def add_album():
     """
     Create an unrelated album in the Album table.
@@ -27,23 +27,21 @@ def add_album():
         return jsonify({'error': "Album already exists in the system"}), 400
 
 
-@albums_routes.route('/add_artist_connector/', methods=["POST"])
+@albums_routes.route('/add_artist_connector', methods=["POST"])
 def add_artist_album_connector():
     """
     Relate an artist to an album.
     :return: Create a CONNECTOR record in Album - Artist connector table.
     """
     try:
-        artist_id = request.json['artist_id']
-        album_id = request.json['album_id']
-        AlbumsRepository.get_instance().add_artist_connection(album_id, artist_id)
+        artist_name = request.json['artist_name']
+        album_name = request.json['album_name']
+        AlbumsRepository.get_instance().add_artist_connection(album_name, artist_name)
         return jsonify({'message': 'Album-Artist connector added successfully'}), 201
-
     except TypeError:
         return jsonify({'error': "Illegal query"}), 400
     except Exception as e:
         return jsonify({'error': "Album or Artist does not exist, or has already been inserted."}), 400
-
 
 
 @albums_routes.route('/', methods=["GET"])
@@ -70,10 +68,9 @@ def get_album_by_name(album_name: str):
     # album_name = request.args.get("name")
     album = AlbumsRepository.get_instance().get_album_by_name(album_name)
     return jsonify({"album_id": album[0][0],
-                     "album_name": album[0][1],
-                     "album_spotify_id": album[0][2],
-                     "rating": album[0][3]})
-
+                    "album_name": album[0][1],
+                    "album_spotify_id": album[0][2],
+                    "rating": album[0][3]})
 
 
 @albums_routes.route('/all_albums_grades', methods=["GET"])
@@ -104,7 +101,6 @@ def get_x_highest_ranked_albums():
                      "album_rating": rec[2]} for rec in res])
 
 
-
 @albums_routes.route('/get_reccomendations/<username>/<limit>', methods=["GET"])
 def get_album_recommendations(limit: int, username: string):
     """
@@ -126,7 +122,7 @@ def get_album_recommendations(limit: int, username: string):
         recommendations = recommendations_rep.get_recommendations_by_liked_genres(best_genres, limit)
         # TEST RESULT: dict per Genre
         # {'Indie':
-            #   [(513737, 'I Wanna Have Some Fun', 235933, 7, datetime.date(1992, 1, 1), 1, 0.58, '2MLtib2ulZ6eeu4zTToYr7', 158678, 'Michael Percy', "'1PWS3ACXatxz3XOb6vvdja'", 14491, 'Greatest Hits', '5dXjkwmrW65p0jUXAoQ8kU'),
+        #   [(513737, 'I Wanna Have Some Fun', 235933, 7, datetime.date(1992, 1, 1), 1, 0.58, '2MLtib2ulZ6eeu4zTToYr7', 158678, 'Michael Percy', "'1PWS3ACXatxz3XOb6vvdja'", 14491, 'Greatest Hits', '5dXjkwmrW65p0jUXAoQ8kU'),
         #   'Soul Music': [...] ...
         if recommendations is None or len(recommendations) == 0:
             return jsonify({'error': "No recommendations found"}), 404
@@ -144,8 +140,8 @@ def get_album_recommendations(limit: int, username: string):
                 # KILL ME.
                 # album = AlbumsRepository.get_instance().get_album_by_name(recommendations[g][i][12])
                 res = {"album_id": recommendations[g][i][11],
-                        "album_name": recommendations[g][i][12],
-                        "album_spotify_id": recommendations[g][i][13]}
+                       "album_name": recommendations[g][i][12],
+                       "album_spotify_id": recommendations[g][i][13]}
                 albums_by_genres[g].append(res)
 
         # with app.app_context(): recommendations[g][i][12]
@@ -161,6 +157,7 @@ def get_album_recommendations(limit: int, username: string):
     except Exception as e:
         return jsonify({'error': "Illegal query"}), 500
 
+
 if __name__ == "__main__":
-    #print(get_album_recommendations(10, "The Big Boss"))
+    # print(get_album_recommendations(10, "The Big Boss"))
     pass
