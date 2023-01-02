@@ -1,6 +1,58 @@
 from typing import List, Tuple
-
 from repositories.base import BaseRepository
+
+
+class ArtistAbstract:
+
+    def to_dict(self) -> dict:
+        """
+        :return: Returns a dictionary representation of the object.
+        """
+        raise NotImplementedError
+
+    def __eq__(self, other):
+        raise NotImplementedError
+
+    def __repr__(self):
+        return str(self.to_dict())
+
+
+class Artist(ArtistAbstract):
+    """
+    An artist object that represents an artist in the database.
+    Only has the fields that are in the songs table.
+    """
+
+    def __init__(self, artist_name, spotify_id):
+        self.artist_name = artist_name
+        self.spotify_id = spotify_id
+
+    def to_dict(self):
+        return {
+            'artist_name': self.artist_name,
+            'spotify_id': self.spotify_id,
+        }
+
+    def __eq__(self, other):
+        return self.spotify_id == other.song_spotify_id
+
+
+class ArtistWithRating(Artist):
+    """
+    An artist object that represents an artist in the database.
+    Has the fields in the artist table + the rating.
+    """
+
+    def __init__(self, artist_name, spotify_id, rating):
+        super().__init__(artist_name, spotify_id)
+        self.rating = rating
+
+    def to_dict(self):
+        return {
+            'song_name': self.artist_name,
+            'song_spotify_id': self.spotify_id,
+            'rating': self.rating
+        }
 
 
 class ArtistsRepository(BaseRepository):

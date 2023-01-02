@@ -1,5 +1,6 @@
 import math
 import random
+from typing import List
 
 from flask import Blueprint, jsonify, request
 
@@ -130,7 +131,7 @@ class SongWithArtistAndAlbum(Song):
         return songs
 
     @staticmethod
-    def from_list_as_dicts(song_list: list) -> list[dict]:
+    def from_list_as_dicts(song_list: list) -> List[dict]:
         """
         Like from_list, but converts the list of SongWithArtistAndAlbum objects to a list of dictionaries.
         :param song_list: see from_list
