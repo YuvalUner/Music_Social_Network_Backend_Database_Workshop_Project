@@ -112,7 +112,10 @@ def get_recommendations(limit: int, username: str):
             artists = [song_by_genres[genre][i]["artists"] for i in range(len(song_by_genres[genre]))]
             flatten = list(itertools.chain(*artists))
             recs = list(set(flatten))
-            artists_by_genres[genre] = recs[:limit]
+            d = []
+            for ar in recs:
+                d.append({"artist_name": ar})
+            artists_by_genres[genre] = d[:limit]
 
         return jsonify(artists_by_genres), 200
     except TypeError:
