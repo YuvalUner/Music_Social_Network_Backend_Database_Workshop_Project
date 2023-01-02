@@ -108,6 +108,7 @@ class SongWithArtistAndAlbum(Song):
             'album_name': self.album_name
         }
 
+
     def add_artist(self, artist_name) -> None:
         """
         Adds an artist to the song's list of artists.
@@ -290,10 +291,9 @@ def get_song_rating(song_name: str, album_name: str):
     :return: A JSON object with the average rating of the song
     """
     try:
-        song = SongRepository.get_instance().get_song_rating(song_name, album_name)
-        if song is None or len(song) == 0:
+        song_rating = SongRepository.get_instance().get_song_rating(song_name, album_name)[0][0]
+        if song_rating is None:
             return jsonify({'error': "Song not found"}), 404
-        song_rating = float(song[0][0])
         return jsonify({'rating': song_rating}), 200
     except Exception as e:
         return jsonify({'error': "Illegal query"}), 500
@@ -353,7 +353,7 @@ def get_top_songs_per_year(number_of_songs: int, year: str):
         year += '-01-01'
         songs = SongRepository.get_instance().get_top_rated_songs_per_year(year, number_of_songs)
         if songs is None or len(songs) == 0:
-            return jsonify({'error': "No songs found for the specified year"}), 500
+            return jsonify({'error': "No songs found for the specified year"}), 404
         song_list = []
         # Convert the songs to song objects
         for song in songs:
