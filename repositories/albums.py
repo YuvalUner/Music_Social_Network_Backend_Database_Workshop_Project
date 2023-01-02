@@ -11,24 +11,34 @@ class AlbumsRepository(BaseRepository):
         """
         return self._execute_query("SELECT * FROM albums")
 
+    def get_album_artists(self, album_name: str):
+        """
+        Get all artists related to an album.
+        :param album_name:
+        :return: list of artist names.
+        """
+        return self._execute_query("""
+            SELECT artist_name FROM artists WHERE artist_id IN(
+            SELECT artist_id FROM artist_album_connector WHERE album_id = 
+            (SELECT album_id FROM albums WHERE album_name = %s));
+        """, album_name)
+
+
     def get_album_by_name(self, album_name: str):
         """
         Return album details by name.
         :param album_name: Self explanatory.
         :return: album_id, album_name, spotify_album_id, average (new feature)
         """
-        # return self._execute_query("SELECT * FROM albums WHERE album_name=%s", album_name)
-        query = "select album_id, album_name, album_spotify_id, avg(averages.rtg)" \
-                " from albums" \
-                " join" \
-                " (select song_id, avg(rating) as rtg" \
-                " from comment_on_song" \
-                " where song_id in (select song_id from songs where album =" \
-                " (select album_id from albums where album_name='{trg}')) " \
-                " group by song_id) as averages" \
-                " where album_name = '{trg}'" \
-                " group by album_id;".format(trg=album_name)
-        return self._execute_query(query)
+        return self._execute_query("""
+            select album_id, album_name, album_spotify_id, avg(averages.rtg)
+             from albums join (select song_id, avg(rating) as rtg  from comment_on_song
+              where song_id in (select song_id from songs where album = 
+              (select album_id from albums where album_name= %s ))
+              group by song_id) as averages
+               where album_name = %s
+                group by album_id;
+        """, album_name, album_name)
 
     def add_album(self, album_name: str, album_spotify_id: str):
         """
