@@ -27,6 +27,22 @@ def add_album():
         return jsonify({'error': "Album already exists in the system"}), 400
 
 
+@albums_routes.route('get_artists/<album_name>', methods=["GET"])
+def get_album_artists(album_name: str):
+    """
+    Get all artists that are related to the album.
+    input: album_name
+    output: JSON: {[ARTIST_NAME1, ARTIST_NAME2, ...]}
+    """
+    try:
+        artists = AlbumsRepository.get_instance().get_album_artists(album_name)
+        if len(artists) == 0:
+            return jsonify({'error': "Album not found"}), 404
+        return jsonify(artists), 200
+    except Exception as e:
+        return jsonify({'error': "Album not found"}), 404
+
+
 @albums_routes.route('/add_artist_connector', methods=["POST"])
 def add_artist_album_connector():
     """
@@ -65,12 +81,16 @@ def get_album_by_name(album_name: str):
     Get all albums with their ratings.
     :return: (album_id, album_name, rating)
     """
-    # album_name = request.args.get("name")
-    album = AlbumsRepository.get_instance().get_album_by_name(album_name)
-    return jsonify({"album_id": album[0][0],
-                    "album_name": album[0][1],
-                    "album_spotify_id": album[0][2],
-                    "rating": album[0][3]})
+    try:
+        album = AlbumsRepository.get_instance().get_album_by_name(album_name)
+        if album is None:
+            return jsonify({'error': "Album does not exist"}), 400
+        return jsonify({"album_id": album[0][0],
+                        "album_name": album[0][1],
+                        "album_spotify_id": album[0][2],
+                        "rating": album[0][3]})
+    except Exception as e:
+        return jsonify({'error': "Album does not exist in the system"}), 400
 
 
 @albums_routes.route('/all_albums_grades', methods=["GET"])
