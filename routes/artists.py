@@ -1,5 +1,11 @@
+import itertools
+import math
+
 from repositories import ArtistsRepository
 from flask import Blueprint, jsonify, request
+
+from repositories.recommendations import RecommendationsRepository, RecommendationsDataProcessing
+from routes.songs import SongWithArtistAndAlbum
 
 artists_routes = Blueprint('artists', __name__)
 
@@ -68,3 +74,51 @@ def link_artist_to_genre():
         return jsonify({"res": "OK"}), 201
     except Exception as e:
         return jsonify({"res": "Error"}), 400
+
+
+@artists_routes.route('/get_reccomendations/<username>/<limit>', methods=['GET'])
+def get_recommendations(limit: int, username: str):
+    """
+    Returns a list of reccomendations for the user
+    :param limit: the number of artists to get
+    :param username: the username of the user
+    :return: JSON of the reccomendations
+    """
+    try:
+        limit = int(limit)
+        # Get info about the user's preferences
+        recommendations_rep = RecommendationsRepository.get_instance()
+        recommendations_info = recommendations_rep.get_recommendation_info_by_liked_songs(username)
+        if recommendations_info is None or len(recommendations_info) == 0:
+            return jsonify({'error': "No recommendations found"}), 404
+        # Process the preferences to get the user's top 3 genres
+        best_genres = RecommendationsDataProcessing.get_best_genres(recommendations_info, 3)
+        # Get recommendations by those genres
+        recommendations = recommendations_rep.get_recommendations_by_liked_genres(best_genres, limit)
+        if recommendations is None or len(recommendations) == 0:
+            return jsonify({'error': "No recommendations found"}), 404
+        total_score = 0
+        # Calculate relative scores of each genre
+        for genre in best_genres:
+            total_score += best_genres[genre]
+        # for artists
+        relative_scores = {g: math.ceil((best_genres[g] / total_score) * limit * 2) for g in best_genres}
+        # Get relative score number of songs per each genre
+        song_by_genres = {g: SongWithArtistAndAlbum.from_list_as_dicts(recommendations[g][:relative_scores[g]])
+                           for g in best_genres}
+
+        artists_by_genres = {}
+        for genre in song_by_genres:
+            artists = [song_by_genres[genre][i]["artists"] for i in range(len(song_by_genres[genre]))]
+            flatten = list(itertools.chain(*artists))
+            recs = list(set(flatten))
+            d = []
+            for ar in recs:
+                d.append({"artist_name": ar})
+            artists_by_genres[genre] = d[:limit]
+
+        return jsonify(artists_by_genres), 200
+    except TypeError:
+        return jsonify({'error': "Illegal argument - must be an integer"}), 404
+    except Exception as e:
+        return jsonify({'error': "Illegal query"}), 500
