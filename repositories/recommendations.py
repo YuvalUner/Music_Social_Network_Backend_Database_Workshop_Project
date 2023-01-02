@@ -127,5 +127,5 @@ if __name__ == '__main__':
     # print(f"Index: 12, Rating: {song[12]})")
     results = RecommendationsDataProcessing.get_best_genres(song, 3)
     print(results)
-    recommendations = song_repository.get_recommendations_by_liked_genres(results, 3)
-    print(recommendations)
+    # recommendations = song_repository.get_recommendations_by_liked_genres(results, 3)
+    # print(recommendations)

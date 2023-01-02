@@ -389,6 +389,7 @@ def get_recommendations(limit: int, username: str):
     :return: JSON of the reccomendations
     """
     try:
+        # COPY
         limit = int(limit)
         # Get info about the user's preferences
         recommendations_rep = RecommendationsRepository.get_instance()
@@ -406,6 +407,7 @@ def get_recommendations(limit: int, username: str):
         for genre in best_genres:
             total_score += best_genres[genre]
         relative_scores = {g: math.ceil((best_genres[g] / total_score) * limit) for g in best_genres}
+        # UP TO HERE
         # Get relative score number of songs per each genre
         songs_by_genres = {g: SongWithArtistAndAlbum.from_list_as_dicts(recommendations[g][:relative_scores[g]])
                            for g in best_genres}
