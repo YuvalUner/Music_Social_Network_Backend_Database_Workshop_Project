@@ -11,9 +11,9 @@ app.register_blueprint(routes.favorite_songs_routes, url_prefix='/favorite-songs
 app.register_blueprint(routes.comment_routes, url_prefix='/comments')
 app.register_blueprint(routes.genres_routes, url_prefix='/genres')
 
-# if __name__ == '__main__':
+if __name__ == '__main__':
 
 
     # http_server = WSGIServer(('0.0.0.0', 8080), app)
     # http_server.serve_forever()
-    # app.run(port=8080, debug=True)
+    app.run(port=8080, debug=True)
