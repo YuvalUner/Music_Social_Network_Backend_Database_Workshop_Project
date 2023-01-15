@@ -136,7 +136,7 @@ In this page, you can use a username and password to log in as an existing user.
 If your username and password are correct, you will be redirected to the home page. Else, you will be shown an error message.\
 \
 If you do not have an account or wish to create a new account, you can click to the "Sign up" button
-to go to the sign up page.\
+to go to the sign up page.
 
 #### Test users
 The following users are already registered in the database:
@@ -146,7 +146,7 @@ The following users are already registered in the database:
 4. username: bbbb, password: 1234
 
 In addition to every other user that is registered in the database.\
-These users are every single artist, meaning there are approximately 143000 others available to test with.\
+These users are every single artist, meaning there are approximately 143000 others available to test with.
 
 ### Sign up
 When you click on the "Sign up" button, you will be redirected to the sign up page:\
@@ -221,7 +221,7 @@ It looks like this:\
 ![](documentation_resources/user_menu.png)\
 In this tab, you can see your username at the top - clicking it will bring you to your own artist page.\
 Below that, you can see a list of buttons.\
-Each of these buttons allow you to navigate to a different page - these pages are covered later on in the manual.\
+Each of these buttons allow you to navigate to a different page - these pages are covered later on in the manual.
 
 #### The main content section
 The main content section is located at the centre of the page.\
@@ -245,14 +245,14 @@ In this page, you can see various types of information about the song.\
 By clicking an artist, you will be redirected to the artist page of that artist.\
 By clicking an album, you will be redirected to the album page of that album.\
 By clicking "Add to favourites", you will add the song to your favourites.\
-By clicking the spotify link below, you will have a new tab open with the song on spotify.\
+By clicking the spotify link below, you will have a new tab open with the song on spotify.
 
 By scrolling down, you will see the following:\
 ![](documentation_resources/song_page_bottom.png)\
 In this part, you can see comments and ratings that other users have left for this song.\
 You can also add your own comment and rating by filling in the fields at the bottom of this part.\
 After you add your comment and rating, you will see your own comment, as well as be able to see that the song's rating
-has been updated.\
+has been updated.
 ![](documentation_resources/comment_added.png)\
 ![](documentation_resources/rating_updated.png)
 
@@ -262,7 +262,7 @@ It looks like this:\
 ![](documentation_resources/artist_page.png)\
 In this page, you can see various types of information about the artist.\
 By clicking the spotify link below, you will have a new tab open with the artist on spotify.\
-By clicking an album, you will be redirected to the album page of that album.\
+By clicking an album, you will be redirected to the album page of that album.
 
 ##### Album page
 The album page is the page that you are shown in the center of the application when you click on an album.\
@@ -271,14 +271,14 @@ It looks like this:\
 In this page, you can see various types of information about the album.\
 By clicking the spotify link below, you will have a new tab open with the album on spotify.\
 By clicking a song, you will be redirected to the song page of that song.\
-By clicking an artist, you will be redirected to the artist page of that artist.\
+By clicking an artist, you will be redirected to the artist page of that artist.
 
 ##### Favourite songs page
 The favourite songs page is the page that you are shown in the center of the application when you click on the "Favourite songs" button in the user and menu tab.\
 It looks like this:\
 ![](documentation_resources/favorite_songs.png)\
 In this page, you can see a list of songs that you have added to your favourites.\
-Clicking on any song will redirect you to the song page of that song.\
+Clicking on any song will redirect you to the song page of that song.
 
 ##### Add song page
 The add song page is the page that you are shown in the center of the application when you click on the "Add song" button in the user and menu tab.\
@@ -288,7 +288,7 @@ By filling out all of the information needed, you can add a new song to the data
 That song will always be considered one of your songs.\
 The album list will load all albums that belong to the user. If the user has no albums, they should create one first in the "Add album" page.\
 If all of the info the user input is valid, the song will be added and a success message will be shown.\
-Else, an error message will be shown.\
+Else, an error message will be shown.
 
 ##### Add album page
 The add album page is the page that you are shown in the center of the application when you click on the "Add album" button in the user and menu tab.\
@@ -297,7 +297,7 @@ It looks like this:\
 By filling out all of the information needed, you can add a new album to the database.\
 That album will always be considered one of your albums.\
 If all of the info the user input is valid, the album will be added and a success message will be shown.\
-Else, an error message will be shown.\
+Else, an error message will be shown.
 
 ##### Artist recommendations page
 The artist recommendations page is the page that you are shown in the center of the application when you click on the "Artist recommendations" button in the user and menu tab.\
@@ -306,7 +306,7 @@ It looks like this:\
 In this page, you can see a list of artists that are of the same genres as songs that you liked.\
 Clicking on any artist will redirect you to the artist page of that artist.\
 \
-Note that this page takes a while to load, as it has to run a recommendation algorithm on the database.\
+Note that this page takes a while to load, as it has to run a recommendation algorithm on the database.
 
 ##### Album recommendations page
 The album recommendations page is the page that you are shown in the center of the application when you click on the "Album recommendations" button in the user and menu tab.\
@@ -315,7 +315,7 @@ It looks like this:\
 In this page, you can see a list of albums that are in the same genres as songs that you liked.\
 Clicking on any album will redirect you to the album page of that album.\
 \
-Note that this page takes a while to load, as it has to run a recommendation algorithm on the database.\
+Note that this page takes a while to load, as it has to run a recommendation algorithm on the database.
 
 ##### Top songs page
 The top songs page is the page that you are shown in the center of the application when you click on the "Top songs" button in the user and menu tab.\
