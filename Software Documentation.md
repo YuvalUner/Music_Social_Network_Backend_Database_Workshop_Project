@@ -1202,3 +1202,240 @@ then finally returns an amount of songs per genre, according to the relative sco
 \
 It can easily seen that by replacing the line where songs_by_genres is assigned, recommendations 
 for albums or artists can be created as well (which is precisely what is done in the API for those).
+
+## Source Code
+The source code for our project, both the server and client, can be found in the folders 
+./server and ./client respectively.\
+If we remembered to make it public, it can also be found on github:
+1. [Server](https://github.com/Ori-Roza/databases-workshop-project)
+2. [Client](https://github.com/CulturedPanda/database-workshop-project-frontend)
+
+In depth instructions on how to run the project can be found in the User Manual.md file, also included
+in the same folder as this file.
+
+### The server
+The server is written in Python, using the Flask framework.\
+It is a web API, meant to serve the client, and is connected to a MySQL database.\
+To run it, use the command:
+```bash
+cd server
+
+# on windows:
+python waitress-serve --host 127.0.0.1  main:app 
+
+# on linux:
+python -m gunicorn -k gevent -w 8 -b 0.0.0.0:8080 main:app
+```
+Both of the above are assuming the pre-requisite packages are installed, and the database is running.\
+More in depth instructions on this, as well as how to install the packages, can be found in the User Manual.md file.\
+\
+The server is divided into 3 main parts:
+1. The main file and app_conf.py file, which are the entry point of the server, and contain the Flask app as well as file that loads the configuration.
+2. The routes package, which contains the files that define the routes of the API.
+3. The repositories package, which contains the files that define the queries to the database.
+
+#### The main file and app_conf.py file
+The main file is the entry point of the server, and contains the Flask app.\
+It is responsible for loading up the blueprints from the routes package, as well as starting the application
+on the specified port.\
+\
+The app_conf.py file is responsible for loading the configuration of the application, and is used by the main file.\
+The connection to the database is also defined in this file, and is used by the repositories package.
+
+#### The routes package
+The routes package contains the files that define the routes of the API.\
+Each file in this package is a blueprint, and is responsible for defining the routes of a specific part of the API.\
+The routes are defined using the Flask framework, and are responsible for calling the appropriate methods from the repositories package.\
+The routes are also responsible for validating the input of the user, and returning the appropriate response to the user.\
+The routes are:
+
+##### Album routes
+The album routes can be found in routes/albums.py.\
+They are responsible for handling all API requests regarding the album entity.\
+Among the actions that can be done with these routes are:
+* Getting an album by its name
+* Adding an album
+* Getting recommendations for albums based on the user's preferences
+
+##### Artist routes
+The artist routes can be found in routes/artists.py.\
+They are responsible for handling all API requests regarding the artist entity.\
+Among the actions that can be done with these routes are:
+* Adding a new artist (user)
+* Logging in as an artist (user)
+* Getting the top artists of all time
+* Getting all of an artist's albums
+
+##### Genre routes
+The genre routes can be found in routes/genres.py.\
+This route has a single method, which is responsible for getting all of the genres in the database.
+
+##### Songs routes
+The songs routes can be found in routes/songs.py.\
+They are responsible for handling all API requests regarding the song entity.\
+Among the actions that can be done with these routes are:
+* Getting a song by its name and album
+* Search for songs using approximate or exact search by their name
+* Getting recommendations for songs based on the user's preferences
+* Getting the top songs of all time or of a specific year
+
+##### Favorite songs routes
+The favorite songs routes can be found in routes/favorite_songs.py.\
+There are 2 methods in this route, which are responsible for:
+* Adding a song to the user's favorites
+* Getting the user's favorite songs
+
+##### Song comments route
+The song comments route can be found in routes/song_comments.py.\
+There are 2 methods in this route, which are responsible for:
+* Adding a comment to a song
+* Getting all of the comments of a song
+
+#### The repositories package
+The repositories package contains the files that define the queries to the database.\
+Each file in this package is a repository, and is responsible for defining the queries to a specific part of the database.\
+It also defines the way in which we access the database, such as handling the connection and the cursor.\
+This package is used by the routes package for accessing the database.\
+The repositories are:
+
+##### Base repository
+The base repository can be found in repositories/base.py.\
+It is an abstract class, responsible for all handling of the connection, query execution and cursor closing.\
+All other repositories inherit from this class, and use its execute_query method for executing queries.
+
+##### Album repository
+The album repository can be found in repositories/albums.py.\
+It is responsible for all queries regarding the album entity.\
+All of the queries listed in the queries section of this document under the "Album related queries" section
+can be found there, and are used by the album routes.\
+
+##### Artist repository
+The artist repository can be found in repositories/artists.py.\
+It is responsible for all queries regarding the artist entity.\
+All of the queries listed in the queries section of this document under the "Artist related queries" section
+can be found there, and are used by the artist routes.\
+
+##### Genre repository
+The genre repository can be found in repositories/genres.py.\
+It has a single query to it, which simply gets all genres from the database.\
+This query is used by the genre routes.
+
+##### Song repository
+The song repository can be found in repositories/songs.py.\
+It is responsible for all queries regarding the song entity.\
+All of the queries listed in the queries section of this document under the "Song related queries" section
+can be found there, and are used by the song routes.\
+
+##### Favorite songs repository
+The favorite songs repository can be found in repositories/favorite_songs.py.\
+It has 2 queries in it, responsible for:
+* Adding a song to the user's favorites
+* Getting the user's favorite songs
+
+These queries are used by the favorite songs routes.
+
+##### Song comments repository
+The song comments repository can be found in repositories/song_comments.py.\
+It has 2 queries in it, responsible for:
+* Adding a comment to a song
+* Getting all of the comments of a song
+
+These queries are used by the song comments routes.
+
+##### Recommendations repository
+The recommendations repository can be found in repositories/recommendations.py.\
+It has 2 queries in it, responsible for:
+1. Getting the information needed for generating recommendations for the user.
+2. Getting the recommendations for the user based on the information.
+
+As well as a static method for processing the information from 1 into the recommendations for 2\
+These queries are used by the songs, albums and artists routes.
+
+### The client
+The client is written in React, using the Material-UI framework.\
+It is composed of 2 main parts:
+1. The sign up and log in part.
+2. The main part, a single page application that contains all of the functionality of the application.
+
+To run the client, you need to have Node.js installed.\
+Then, you need to run the following commands:
+```bash
+cd client
+npm install
+npm start
+```
+More in depth instructions on this, as well as how to install the packages, can be found in the User Manual.md file.\
+The User Manual.md file also contains instructions on how to operate the client, as well as screenshots going into far more detail.
+
+#### The sign up and log in part
+The sign up and log in part is a simple React application, that is responsible for handling the sign up and log in of the user.\
+It can be found in the client/src/log-in-and-sign-up folder.\
+It is composed of 2 main components:
+1. The sign up component
+2. The log in component
+
+It is possible to switch between the 2 components using the link at the bottom of the form.\
+They are both responsible for sending a request to the server, and handling the response in the appropriate way, depending
+on success or failure.
+
+#### The main part
+The main part is a single page application, that is responsible for handling all of the functionality of the application.\
+It can be found in the client/src/main-app folder.\
+It is composed of 4 main components:
+1. The search tab, found in the search folder, and displayed on the top of the page.
+2. The discover tab, found in the discover-tab folder, and displayed on the left of the page. This tab contains recommendations for songs as well as the top rated artists.
+3. The menu tab, found in side-bar folder, and displayed on the right of the page.
+4. The single page application, displayed in the middle of the page, that switches the active component depending the user's action.
+
+The active component can be any of the following:
+
+##### Home page
+The home page is the default active component, and is displayed when the user first logs in.\
+It shows a list of random songs recommended to the user.
+
+##### Search page
+The search page is displayed when the user searches for a song.\
+It displays the search results in a list, and allows the user to click on a song to go to that song's page.
+
+##### Song page
+The song page is displayed when the user clicks on a song's name.\
+It displays the song's information, and allows the user to add the song to their favorites, or to add a comment to the song.\
+It also allows the user to go to the song's album page, or to the song's artist page.
+
+##### Album page
+The album page is displayed when the user clicks on an album's name.\
+It displays the album's information, and allows the user to go to the album's artist page or to the page of any song contained in it.\
+
+##### Artist page
+The artist page is displayed when the user clicks on an artist's name.\
+It displays the artist's information, and allows the user to go to the page of any album by that artist.
+
+##### Favorites page
+The favorites page is displayed when the user clicks on the favorites button in the menu tab.\
+It displays the user's favorite songs in a list, and allows the user to click on a song to go to that song's page.
+
+##### Add songs page
+The add songs page is displayed when the user clicks on the add songs button in the menu tab.\
+It allows the user to add a song to the database, by filling in a form.\
+The song is added to the database only if all of the fields are filled in correctly.\
+The song is always added under the user's name.\
+
+##### Add albums page
+The add albums page is displayed when the user clicks on the add albums button in the menu tab.\
+It allows the user to add an album to the database, by filling in a form.\
+The album is added to the database only if all of the fields are filled in correctly.\
+The album is always added under the user's name.\
+
+##### Artist recommendations page
+The artist recommendations page is displayed when the user clicks on the artist recommendations button in the menu tab.\
+It displays the user's artist recommendations in a list, and allows the user to click on an artist to go to that artist's page.
+
+##### Album recommendations page
+The album recommendations page is displayed when the user clicks on the album recommendations button in the menu tab.\
+It displays the user's album recommendations in a list, and allows the user to click on an album to go to that album's page.
+
+##### Top songs page
+The top songs page is displayed when the user clicks on the top songs button in the menu tab.\
+It displays the top rated songs in a list, and allows the user to click on a song to go to that song's page.\
+It allows choosing between getting the top rated songs of all time, or the top rated songs of a specific year.
+
