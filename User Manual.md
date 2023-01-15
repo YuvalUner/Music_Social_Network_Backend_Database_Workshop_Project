@@ -326,4 +326,4 @@ After selecting a year (or staying with the default of "All times") and hitting 
 In this page, you can see a list of songs that are the most popular in the selected year.\
 Clicking on any song will redirect you to the song page of that song.\
 \
-If no songs were found in that year, a message will be shown instead.\
+If no songs were found in that year, a message will be shown instead.
