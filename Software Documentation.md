@@ -1,8 +1,8 @@
 # Database workshop project - Music Social Network
 Created and submitted by: 
-1. Yuval Uner, ***REMOVED***
-2. Ori Roza, ***REMOVED***,
-3. Amiram Yasif, ***REMOVED*** 
+1. Yuval Uner
+2. Ori Roza
+3. Amiram Yasif 
 
 ## Data
 ### Data sets
