@@ -1,4 +1,5 @@
 # databases-workshop-project
 
-Project workplan link: https://docs.google.com/document/d/1urTWa92yUZ8ZSweFlSjLxyGlPlHa6P82Ho41brxz4sw/edit
-Project description link: https://docs.google.com/document/d/1NK3Fwm-09f2g1I3ch9Qi5UhqZFK9ycgJZLJj3ONTxSs/edit
+Server side, written in Python using Flask and with a MySQL database of our project for the Databse Workshop, Bar-Ilan University, 2023.\
+This application is a demo social network, where users can find music and artists, interact with them and leave reviews.\
+For detailed documentation, please refer to the User Manual.md and Software Documentation.md files.
