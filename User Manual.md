@@ -1,8 +1,8 @@
 # User manual for the "music social network" project
 Created and submitted by: 
-1. Yuval Uner, ***REMOVED***
-2. Ori Roza, ***REMOVED***,
-3. Amiram Yasif, ***REMOVED*** 
+1. Yuval Uner
+2. Ori Roza
+3. Amiram Yasif 
 
 ## Introduction
 In the following manual, we will discuss how to install, run and operate the 
